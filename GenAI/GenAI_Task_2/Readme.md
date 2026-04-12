@@ -1,12 +1,4 @@
 🚀 Technical-Blog-Gen-AI-Lang-Chain
-
-
-
-
-
-
-
-
 📌 Overview
 
 This repository presents a deep technical exploration of LangChain, combining both conceptual understanding and hands-on implementation of LLM-powered applications.
@@ -110,7 +102,7 @@ Low-latency systems
 Minimal logic workflows
 📖 Blog Link
 
-👉https://medium.com/@samyaghshetty77/mastering-langchain-a-deep-technical-guide-to-building-llm-powered-applications-f17c230fcadb
+👉 https://medium.com/@samyaghshetty77/mastering-langchain-a-deep-technical-guide-to-building-llm-powered-applications-f17c230fcadb
 
 🔗 Connect with Me
 💼 LinkedIn: https://www.linkedin.com/in/samyagh/
