@@ -1,4 +1,0 @@
-Graduate with Python and basic ML knowledge.
-
-Skills: Python, ML basics
-Tools: Pandas
