@@ -1,0 +1,4 @@
+Data Scientist with 3 years experience.
+
+Skills: Python, Machine Learning, NLP, SQL
+Tools: Pandas, NumPy, Scikit-learn
