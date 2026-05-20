@@ -1,7 +1,7 @@
-# ==========================================
+
 # RAG Customer Support Assistant (FINAL)
 # LangGraph + ChromaDB + Ollama + HITL
-# ==========================================
+
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -9,24 +9,24 @@ from langchain_community.vectorstores import Chroma
 from langchain_ollama import OllamaEmbeddings, ChatOllama
 from langgraph.graph import StateGraph
 
-# ==============================
+
 # LOAD PDF
-# ==============================
+
 loader = PyPDFLoader("data.pdf")
 docs = loader.load()
 
-# ==============================
+
 # CHUNKING
-# ==============================
+
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=800,
     chunk_overlap=100
 )
 chunks = splitter.split_documents(docs)
 
-# ==============================
+
 # EMBEDDINGS + VECTOR DB
-# ==============================
+
 embeddings = OllamaEmbeddings(model="nomic-embed-text")
 
 db = Chroma.from_documents(
@@ -37,14 +37,14 @@ db = Chroma.from_documents(
 
 retriever = db.as_retriever(search_kwargs={"k": 3})
 
-# ==============================
+
 # LLM (Better model)
-# ==============================
+
 llm = ChatOllama(model="mistral") # 🔥 better than phi
 
-# ==============================
+
 # ANSWER FUNCTION
-# ==============================
+
 def generate_answer(query, context):
     if not context.strip():
         return "I don't know"
@@ -65,10 +65,14 @@ Question:
     try:
         response = llm.invoke(prompt)
 
-        # 🔥 ChatOllama returns .content
-        answer = response.content.strip()
+        print("\n🧠 RAW RESPONSE:", response)
 
-        if answer == "":
+        # FIX
+        answer = response.content if hasattr(response, "content") else str(response)
+
+        answer = str(answer).strip()
+
+        if not answer:
             return "I don't know"
 
         return answer
@@ -76,15 +80,19 @@ Question:
     except Exception as e:
         print("❌ LLM Error:", e)
         return "I don't know"
-# ==============================
 # STATE
-# ==============================
-class State(dict):
-    pass
 
-# ==============================
+from typing import TypedDict
+
+# STATE
+
+class State(TypedDict):
+    query: str
+    context: str
+    answer: str
+    confidence: int
 # PROCESS NODE
-# ==============================
+
 def process_node(state):
     query = state.get("query", "")
 
@@ -98,25 +106,23 @@ def process_node(state):
 
     answer = generate_answer(query, context)
 
-    confidence = len(docs)
+    print("\n🤖 GENERATED ANSWER:", answer)
 
     return {
         "query": query,
         "context": context,
         "answer": answer,
-        "confidence": confidence
+        "confidence": len(docs)
     }
 
-# ==============================
+
 # ROUTER
-# ==============================
+
 def router(state):
-    if state.get("answer", "") == "I don't know":
-        return "hitl"
     return "output"
-# ==============================
+
 # HITL NODE
-# ==============================
+
 def hitl_node(state):
     print("\n⚠️ Escalating to Human Agent...")
     human_answer = input("👨‍💻 Enter human response: ")
@@ -128,23 +134,20 @@ def hitl_node(state):
         "confidence": 0
     }
 
-# ==============================
+
 # OUTPUT NODE
-# ==============================
+
 def output_node(state):
     print("\n✅ Final Answer:")
 
-    answer = state.get("answer")
+    answer = state.get("answer", "I don't know")
 
-    if not answer:
-        print("❌ No answer generated")
-    else:
-        print("👉", answer)
+    print("👉", answer)
 
     return state
-# ==============================
+
 # BUILD GRAPH
-# ==============================
+
 builder = StateGraph(State)
 
 builder.add_node("process", process_node)
@@ -166,9 +169,9 @@ builder.add_edge("hitl", "output")
 
 graph = builder.compile()
 
-# ==============================
+
 # RUN LOOP
-# ==============================
+
 print("🚀 RAG Customer Support Assistant Started")
 
 while True:
