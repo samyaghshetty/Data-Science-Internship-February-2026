@@ -3,3 +3,5 @@ langgraph
 chromadb
 pypdf
 langchain-community
+streamlit
+langchain-ollama
